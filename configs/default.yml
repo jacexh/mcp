@@ -1,0 +1,8 @@
+logger:
+  level: info
+  output: console
+eventbus:
+  concurrent: 10
+  timeout: 10s
+http-server:
+  addr: ":80"
