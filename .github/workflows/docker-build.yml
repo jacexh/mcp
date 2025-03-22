@@ -1,8 +1,7 @@
-name: Release
+name: Docker Build
 on:
   workflow_run:
-    workflows: 
-    - Run Test
+    workflows: ["Run Test"]
     types: 
     - completed
 
