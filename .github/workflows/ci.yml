@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        go-version: [1.21.x, 1.22.x]
+        go-version: [1.24.x]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
     - name: Run TestCases
       run: make unittest
     - name: Save code coverage results
-      if: ${{matrix.go-version == '1.22.x' }}
+      if: ${{matrix.go-version == '1.24.x' }}
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-report
@@ -86,3 +86,29 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+  auto-tag:
+    runs-on: ubuntu-latest
+    needs: unittest
+    # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+    # https://docs.github.com/en/actions/learn-github-actions/expressions
+    if: ${{ github.ref == 'refs/heads/master' }}
+    env:
+      COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: "0"
+    - run: |
+        git config --global user.name "Github Action Bot"
+        git config --global user.email "jacexh@users.noreply.github.com"
+        type=patch
+        pattern="^Merge pull request #[0-9]+ from jacexh/release.*"
+        echo "commit message: $COMMIT_MESSAGE"
+        if [[ $COMMIT_MESSAGE =~ $pattern ]]; then
+          echo "bump up minor version number"
+          type=minor
+        fi
+        ./scripts/auto_bump_version.sh $type
+        git push origin master --follow-tags
