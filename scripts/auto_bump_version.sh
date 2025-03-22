@@ -66,8 +66,8 @@ fi
 # ==================================
 
 # Create an annotated tag
-echo "next version: v$VERSION_NEXT"
 git tag -a "v$VERSION_NEXT" -m "Release: v$VERSION_NEXT"
+echo v$VERSION_NEXT > next_version.txt
 
 # Optional: push commits and tag to remote 'main' branch
 # git push origin main --follow-tags
