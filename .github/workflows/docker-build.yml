@@ -1,64 +1,15 @@
-name: CI
+name: Docker Build
 on:
-  pull_request:
-    branches:
-    - master
-    - main
-  push:
-    branches:
-    - master
-    - main
-    tags:
-    - "v*.*.*"
+  workflow_run:
+    workflows: ["Run Test"]
+    types: 
+    - completed
 
 jobs:
-  unittest:
-    name: Run Unit TestCases
-    strategy:
-      fail-fast: true
-      matrix:
-        go-version: [1.24.x]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      name: Check out code into the Go module directory
-    - uses: actions/setup-go@v5
-      name: Set up Go 1.x
-      with:
-        go-version: ${{matrix.go-version}}
-    - name: Run TestCases
-      run: make unittest
-    - name: Save code coverage results
-      if: ${{matrix.go-version == '1.24.x' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-report
-        path: coverage.txt
-    - name: Run Benchmark TestCases
-      run: make benchmark
-
-  codecov:
-    name: Upload Code Coverage Report
-    runs-on: ubuntu-latest
-    needs: unittest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Download code coverage report
-      uses: actions/download-artifact@v4
-      with:
-        name: code-coverage-report
-    - uses: codecov/codecov-action@v5
-      with:
-        files: coverage.txt # optional
-        flags: unittests # optional
-        name: codecov-umbrella # optional
-        fail_ci_if_error: true # optional (default = false)
-        verbose: true # optional (default = false)
-        token: ${{ secrets.CODECOV_TOKEN }}
   docker:
     name: Build And Publish Docker Image
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    needs: unittest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -89,10 +40,9 @@ jobs:
 
   auto-tag:
     runs-on: ubuntu-latest
-    needs: unittest
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     # https://docs.github.com/en/actions/learn-github-actions/expressions
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' }} && ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
       COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
     steps:
