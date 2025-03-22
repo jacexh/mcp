@@ -1,12 +1,13 @@
-name: CI
+name: Release
 on:
   workflow_run:
-    workflows: [unittest]
+    workflows: [Unittest]
     types: [completed]
 
 jobs:
   docker:
     name: Build And Publish Docker Image
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -40,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
     # https://docs.github.com/en/actions/learn-github-actions/expressions
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' }} && ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
       COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
     steps:
