@@ -1,18 +1,5 @@
 name: CI
 on:
-  pull_request:
-    branches:
-    - master
-    - main
-  push:
-    branches:
-    - master
-    - main
-    - release**
-    - hotfix**
-    - feature**
-    tags:
-    - "v*.*.*"
   workflow_run:
     workflows: [unittest]
     types: [completed]
