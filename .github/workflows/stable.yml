@@ -27,7 +27,7 @@ jobs:
           type=minor
         fi
         ./scripts/auto_bump_version.sh $type
-        echo "NEXT_VERSION=`cat next_version.txt` >> $GITHUB_ENV
+        echo "NEXT_VERSION=`cat next_version.txt`" >> $GITHUB_ENV
         git push origin master --follow-tags
     - name: Docker meta
       id: meta
