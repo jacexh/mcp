@@ -1,8 +1,10 @@
 name: Release
 on:
   workflow_run:
-    workflows: [Unittest]
-    types: [completed]
+    workflows: 
+    - Run Test
+    types: 
+    - completed
 
 jobs:
   docker:
