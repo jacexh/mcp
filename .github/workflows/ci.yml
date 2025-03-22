@@ -47,7 +47,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: code-coverage-report
-    - uses: codecov/codecov-action@v4
+    - uses: codecov/codecov-action@v5
       with:
         files: coverage.txt # optional
         flags: unittests # optional
