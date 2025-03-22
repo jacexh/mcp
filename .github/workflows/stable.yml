@@ -1,4 +1,4 @@
-name: Docker Build
+name: Release Build
 on:
   workflow_run:
     workflows: ["Run Test"]
