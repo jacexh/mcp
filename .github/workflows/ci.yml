@@ -8,6 +8,9 @@ on:
     branches:
     - master
     - main
+    - release
+    - hotfix
+    - feature
     tags:
     - "v*.*.*"
 
