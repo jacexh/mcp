@@ -8,8 +8,8 @@ on:
     - master
 
 jobs:
-  docker:
-    name: Build And Publish Docker Image
+  version:
+    name: Bump Version
     if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
     steps:
