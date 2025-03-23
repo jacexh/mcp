@@ -1,0 +1,32 @@
+name: Auto Tag
+on:
+  workflow_run:
+    workflows: ["Run Test"]
+    types: 
+    - completed
+    branches:
+    - master
+
+jobs:
+  docker:
+    name: Build And Publish Docker Image
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} && ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Bump Version
+      run: |
+        git config --global user.name "Github Action Bot"
+        git config --global user.email "jacexh@users.noreply.github.com"
+        type=patch
+        pattern="^Merge pull request #[0-9]+ from jacexh/release.*"
+        echo "commit message: $COMMIT_MESSAGE"
+        if [[ $COMMIT_MESSAGE =~ $pattern ]]; then
+          echo "bump up minor version number"
+          type=minor
+        fi
+        ./scripts/auto_bump_version.sh $type
+        git push origin master --follow-tags

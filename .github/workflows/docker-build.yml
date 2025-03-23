@@ -1,14 +1,17 @@
-name: Development Docker Image Build
+name: Docker Build
 on:
   workflow_run:
-    workflows: ["Run Test"]
+    workflows: 
+    - Run Test
     types: 
     - completed
     branches:
     - release**
     - hotfix**
     - feature**
-  workflow_dispatch:
+  push:
+    tags:
+    - v*.*.*
 
 jobs:
   docker:
