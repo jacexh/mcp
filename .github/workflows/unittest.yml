@@ -1,6 +1,20 @@
 name: Run Test
 
-on: ["push"]
+on:
+  push:
+    branches:
+    - release**
+    - hotfix**
+    - feature**
+    - master
+  pull_request:
+    types:
+    - opened
+    - reopened
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   unittest:
