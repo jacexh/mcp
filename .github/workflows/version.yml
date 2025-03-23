@@ -18,7 +18,8 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.PAT }}
-    - name: Bump Version
+    - name: Check Version Type
+      id: check_version_type
       run: |
         git config --global user.name "Github Action Bot"
         git config --global user.email "jacexh@users.noreply.github.com"
@@ -29,5 +30,28 @@ jobs:
           echo "bump up minor version number"
           type=minor
         fi
-        ./scripts/auto_bump_version.sh $type
-        git push origin master --follow-tags
+        echo "type=$type"
+        echo "type=$type" >> "$GITHUB_OUTPUT"
+    - name: Tag Next Version
+      env:
+        VERSION_TYPE: ${{ steps.check_version_type.outputs.type }}
+      run: |
+        GIT_TAGS=$(git tag --sort=version:refname)
+        GIT_TAG_LATEST=$(echo "$GIT_TAGS" | tail -n 1)
+        if [ -z "$GIT_TAG_LATEST" ]; then
+          GIT_TAG_LATEST="v0.0.0"
+        fi
+        GIT_TAG_LATEST=$(echo "$GIT_TAG_LATEST" | sed 's/^v//')
+        if [ "$VERSION_TYPE" = "patch" ]; then
+          VERSION_NEXT="$(echo "$GIT_TAG_LATEST" | awk -F. '{$3++; print $1"."$2"."$3}')"
+        elif [ "$VERSION_TYPE" = "minor" ]; then
+          VERSION_NEXT="$(echo "$GIT_TAG_LATEST" | awk -F. '{$2++; $3=0; print $1"."$2"."$3}')"
+        elif [ "$VERSION_TYPE" = "major" ]; then
+          VERSION_NEXT="$(echo "$GIT_TAG_LATEST" | awk -F. '{$1++; $2=0; $3=0; print $1"."$2"."$3}')"
+        else
+          printf "\nError: invalid VERSION_TYPE arg passed, must be 'patch', 'minor' or 'major'\n\n"
+          exit 1
+        fi
+        git tag -a "v$VERSION_NEXT" -m "Release: v$VERSION_NEXT"
+    - name: Push Tags
+      run: git push origin master --follow-tags
