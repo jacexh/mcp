@@ -5,7 +5,7 @@ go 1.24
 toolchain go1.24.1
 
 require (
-	github.com/go-chi/chi/v5 v5.1.0
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-jimu/components v0.6.4
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/google/uuid v1.6.0
